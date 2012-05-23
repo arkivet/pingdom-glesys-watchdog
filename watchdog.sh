@@ -1,27 +1,43 @@
 #!/bin/sh
-PINGDOM_URL=https://api.pingdom.com/api/2.0
-GLESYS_URL=https://api.glesys.com
+set -e
+cd `dirname $0`
+HERE=`pwd`
 
-. `dirname $0`/config.sh
-
-pingdom_get()
-{
-	_RESOURCE=$1
-	curl --silent --header "App-Key: $PINGDOM_KEY" -u "$PINGDOM_USER:$PINGDOM_PASSWORD" $PINGDOM_URL/$_RESOURCE | jsonpipe
-}
-
+. $HERE/config.sh
 
 check_glesys()
 {
-echo "TODO: check glesys API and reboot if needed"
+	_TEMP_FILE=`mktemp --tmpdir glesys.XXXXXXXXXX`
+	 trap "rm -f $_TEMP_FILE; exit" INT TERM EXIT
+	$HERE/glesys.sh GET server/status/serverid/$GLESYS_SERVER > $_TEMP_FILE
+
+	_STATUS=`awk '$1 == "/response/server/state" {print $2}' $_TEMP_FILE`
+
+	if [ "$_STATUS" != '"running"' ]; then
+		echo "Unexpected status: $_STATUS" >&2
+		return
+	fi
+	
+	_UPTIME=`awk '$1 == "/response/server/uptime/current" {print $2}' $_TEMP_FILE`
+	if [ "$_UPTIME" -lt $GLESYS_MIN_UPTIME ]; then
+		echo "Uptime less than $GLESYS_MIN_UPTIME seconds" >&2
+		return
+	fi
+
+	_CPU_USAGE=`awk '$1 == "/response/server/cpu/usage" {print $2 * 100}' $_TEMP_FILE`
+	echo "CPU usage: $_CPU_USAGE%"
+
+	cat $_TEMP_FILE
 }
 
 
-STATUS=`pingdom_get checks/$PINGDOM_CHECK | awk '$1 == "/check/status"{ print $2}'`
+STATUS=`$HERE/pingdom.sh GET checks/$PINGDOM_CHECK | awk '$1 == "/check/status" {print $2}'`
+
+#echo $STATUS
 
 case $STATUS in
 
-	"down")
+	'"down"')
 		check_glesys
 		;;
 

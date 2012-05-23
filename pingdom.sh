@@ -11,7 +11,7 @@ shift
 pingdom_get()
 {
 	_RESOURCE=$1
-	curl --silent --header "App-Key: $PINGDOM_KEY" -u "$PINGDOM_USER:$PINGDOM_PASSWORD" $PINGDOM_URL/$_RESOURCE | jsonpipe
+	curl --silent --header "App-Key: $PINGDOM_KEY" -u "$PINGDOM_USER:$PINGDOM_PASSWORD" $PINGDOM_URL/$_RESOURCE | /usr/local/bin/jsonpipe
 }
 
 

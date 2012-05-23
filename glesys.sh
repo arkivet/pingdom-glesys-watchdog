@@ -10,7 +10,7 @@ shift
 glesys_get()
 {
 	_RESOURCE="$1"
-	curl --silent -u $GLESYS_USER:$GLESYS_PASSWORD $GLESYS_URL/$_RESOURCE/format/json | jsonpipe
+	curl --silent -u $GLESYS_USER:$GLESYS_PASSWORD $GLESYS_URL/$_RESOURCE/format/json | /usr/local/bin/jsonpipe
 }
 
 case $METHOD in
