@@ -8,7 +8,7 @@ HERE=`pwd`
 check_glesys()
 {
 	_TEMP_FILE=`mktemp --tmpdir glesys.XXXXXXXXXX`
-	 trap "rm -f $_TEMP_FILE; exit" INT TERM EXIT
+	trap "rm -f $_TEMP_FILE; exit" INT TERM EXIT
 	$HERE/glesys.sh GET server/status/serverid/$GLESYS_SERVER > $_TEMP_FILE
 
 	_STATUS=`awk '$1 == "/response/server/state" {print $2}' $_TEMP_FILE`
@@ -26,8 +26,13 @@ check_glesys()
 
 	_CPU_USAGE=`awk '$1 == "/response/server/cpu/usage" {print $2 * 100}' $_TEMP_FILE`
 	echo "CPU usage: $_CPU_USAGE%"
-
+	
 	cat $_TEMP_FILE
+
+	if [ "$_CPU_USAGE" -gt "$GLESYS_CPU_USAGE_LIMIT" ]; then
+		echo "**** REBOOTING SERVER ****" >&2
+		$HERE/glesys.sh POST server/reboot -d serverid=$GLESYS_SERVER
+	fi
 }
 
 
