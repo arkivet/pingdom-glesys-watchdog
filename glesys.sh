@@ -10,7 +10,7 @@ shift
 glesys_get()
 {
 	_RESOURCE="$1"
-	curl --silent -u $GLESYS_USER:$GLESYS_PASSWORD $GLESYS_URL/$_RESOURCE/format/json | /usr/local/bin/jsonpipe
+	curl --trace-ascii /tmp/glesys_get.trace --silent -u $GLESYS_USER:$GLESYS_PASSWORD $GLESYS_URL/$_RESOURCE/format/json | /usr/local/bin/jsonpipe
 }
 
 glesys_post()
