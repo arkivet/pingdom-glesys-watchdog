@@ -56,8 +56,8 @@ check_glesys()
 	if [ "$_CPU_USAGE" -gt "$GLESYS_CPU_USAGE_LIMIT" ]; then
 		echo "CPU usage: $_CPU_USAGE%"
 		#cat $GLESYS_RESULT
-		echo "**** REBOOTING SERVER ****" >&2
-		$HERE/glesys.sh POST server/reboot -d serverid=$GLESYS_SERVER
+		#echo "**** REBOOTING SERVER ****" >&2
+		#$HERE/glesys.sh POST server/reboot -d serverid=$GLESYS_SERVER
 	fi
 }
 
